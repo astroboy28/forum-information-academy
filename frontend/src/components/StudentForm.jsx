@@ -54,6 +54,9 @@ export default function StudentForm({ initial, onSubmit }) {
         <Field label="Nationality">
           <input className="input" required value={values.nationality} onChange={(e) => update("nationality", e.target.value)} />
         </Field>
+        <Field label="Enrollment date">
+          <input type="date" className="input" required value={values.enrollment_date} onChange={(e) => update("enrollment_date", e.target.value)} />
+        </Field>
         <Field label="Email">
           <input type="email" className="input" required value={values.email} onChange={(e) => update("email", e.target.value)} />
         </Field>
