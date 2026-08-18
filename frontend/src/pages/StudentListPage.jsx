@@ -7,7 +7,6 @@ import ErrorBanner from "../components/ErrorBanner";
 import { JLPTBadge, StatusBadge } from "../components/Badges";
 import { useAuth } from "../context/AuthContext";
 
-
 const GRADE_OPTIONS = [
   { value: "", label: "All years" },
   { value: "1", label: "1st Year" },
@@ -23,6 +22,7 @@ export default function StudentListPage() {
   const debouncedSearch = useDebounce(search);
   const [gradeLevel, setGradeLevel] = useState("");
   const [jlpt, setJlpt] = useState("");
+  const [ordering, setOrdering] = useState("student_number");
   const [students, setStudents] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
@@ -32,7 +32,7 @@ export default function StudentListPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, gradeLevel, jlpt]);
+  }, [debouncedSearch, gradeLevel, jlpt, ordering]);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +42,7 @@ export default function StudentListPage() {
       search: debouncedSearch || undefined,
       grade_level: gradeLevel || undefined,
       jlpt_level: jlpt || undefined,
+      ordering,
       page,
     })
       .then(({ data }) => {
@@ -56,9 +57,28 @@ export default function StudentListPage() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [debouncedSearch, gradeLevel, jlpt, page, retryKey]);
+  }, [debouncedSearch, gradeLevel, jlpt, ordering, page, retryKey]);
 
   const totalPages = Math.max(1, Math.ceil(count / 20));
+
+  function toggleOrdering(field) {
+    setOrdering((prev) => (prev === field ? `-${field}` : field));
+  }
+
+  function SortableHeader({ field, children }) {
+    const active = ordering === field || ordering === `-${field}`;
+    const arrow = ordering === field ? "↑" : ordering === `-${field}` ? "↓" : "↕";
+    return (
+      <th className="px-4 py-3 font-medium">
+        <button
+          onClick={() => toggleOrdering(field)}
+          className={`flex items-center gap-1 ${active ? "text-[var(--color-teal-600)]" : ""}`}
+        >
+          {children} <span className="text-xs">{arrow}</span>
+        </button>
+      </th>
+    );
+  }
 
   return (
     <div className="p-8 max-w-6xl">
@@ -95,12 +115,12 @@ export default function StudentListPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--color-border)] bg-[var(--color-paper)] text-left text-[var(--color-ink-soft)]">
-                <th className="px-4 py-3 font-medium">Student #</th>
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Age</th>
+                <SortableHeader field="student_number">Student #</SortableHeader>
+                <SortableHeader field="call_name">Name</SortableHeader>
+                <SortableHeader field="birthday">Age</SortableHeader>
                 <th className="px-4 py-3 font-medium">Nationality</th>
                 <th className="px-4 py-3 font-medium">Class</th>
-                <th className="px-4 py-3 font-medium">JLPT</th>
+                <SortableHeader field="jlpt_level">JLPT</SortableHeader>
                 <th className="px-4 py-3 font-medium">Status</th>
               </tr>
             </thead>
