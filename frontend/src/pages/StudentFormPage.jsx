@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createStudent } from "../api/students";
 import StudentForm from "../components/StudentForm";
 import ErrorBanner from "../components/ErrorBanner";
@@ -27,10 +27,14 @@ export default function StudentFormPage() {
 
   return (
     <div className="p-8 max-w-3xl">
+      <Link to="/students" className="inline-flex items-center gap-1.5 text-sm text-[var(--color-ink-soft)] hover:text-[var(--color-teal-600)] mb-4">
+        ← Cancel
+      </Link>
+
       <h1 className="font-display font-bold text-2xl mb-6">Add student</h1>
       <ErrorBanner message={error} />
       {Object.keys(fieldErrors).length > 0 && (
-        <div className="mb-4 text-sm text-danger-500 space-y-1">
+        <div className="mb-4 text-sm text-[var(--color-danger-500)] space-y-1">
           {Object.entries(fieldErrors).map(([field, msgs]) => (
             <p key={field}><strong>{field}</strong>: {Array.isArray(msgs) ? msgs.join(", ") : msgs}</p>
           ))}
